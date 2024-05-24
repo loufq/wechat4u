@@ -634,7 +634,7 @@ export default class WechatCore {
           }))
         }
       }).then(() => {
-        ext = name.match(/.*\.(.*)/)
+        ext = name.match(/.*\.([^\?]*)/)
         if (ext) {
           ext = ext[1].toLowerCase()
         } else {
