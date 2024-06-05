@@ -38,9 +38,10 @@ const messageProto = {
     this.OriginalContent = this.Content
     if (this.FromUserName.indexOf('@@') === 0) {
       this.Content = this.Content.replace(/^@.*?(?=:)/, match => {
-        let user = instance.contacts[this.FromUserName].MemberList.find(member => {
+        const c = instance.contacts[this.FromUserName]
+        let user = c ? c.MemberList.find(member => {
           return member.UserName === match
-        })
+        }):null
         return user ? instance.Contact.getDisplayName(user) : match
       })
     }
