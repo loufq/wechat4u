@@ -286,9 +286,10 @@ class Wechat extends WechatCore {
 
   handleMsg (data) {
     data.forEach(msg => {
+      const ny = this._getPerFetchMsgNeedSyncContact(msg)
       Promise.resolve().then(() => {
-        if (!this.contacts[msg.FromUserName] ||
-          (msg.FromUserName.startsWith('@@') && this.contacts[msg.FromUserName].MemberCount === 0)) {
+        if (ny &&(!this.contacts[msg.FromUserName] ||
+          (msg.FromUserName.startsWith('@@') && this.contacts[msg.FromUserName].MemberCount === 0))) {
           return this.batchGetContact([{
             UserName: msg.FromUserName
           }]).then(contacts => {
@@ -301,7 +302,7 @@ class Wechat extends WechatCore {
       }).then(() => {
         msg = this.Message.extend(msg)
         this.emit('message', msg)
-        if (msg.MsgType === this.CONF.MSGTYPE_STATUSNOTIFY) {
+        if (ny && msg.MsgType === this.CONF.MSGTYPE_STATUSNOTIFY) {
           let userList = msg.StatusNotifyUserName.split(',').filter(UserName => !this.contacts[UserName])
             .map(UserName => {
               return {
@@ -360,7 +361,9 @@ class Wechat extends WechatCore {
   _getPollingTarget () { // Default polling target user
     return 'filehelper'
   }
-
+_getPerFetchMsgNeedSyncContact (msg) { //历史消息是否获取联系人信息
+    return true
+  }
   setPollingMessageGetter (func) {
     if (typeof (func) !== 'function') return
     if (typeof (func()) !== 'string') return
@@ -377,6 +380,11 @@ class Wechat extends WechatCore {
     if (typeof (func) !== 'function') return
     if (typeof (func()) !== 'string') return
     this._getPollingTarget = func
+  }
+   setPerFetchMsgNeedSyncContact(func) {//设置历史消息是否获取联系人信息
+      if (typeof func !== 'function') return; 
+      this._getPerFetchMsgNeedSyncContact = func;
+    }
   }
 }
 
